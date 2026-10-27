@@ -1,0 +1,9 @@
+{
+  "name": "Học 8 – Kết nối tri thức",
+  "short_name": "Học 8",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F2F8FC",
+  "theme_color": "#2F80ED",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
