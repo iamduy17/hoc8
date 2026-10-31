@@ -16,21 +16,24 @@ export default function Practice() {
   const { student } = useApp()
   const [level, setLevel] = useState('all')
   const [mode, setMode] = useState('practice')
-  const [count, setCount] = useState(10)
+  const [count, setCount] = useState(10) // Infinity = every question at this level
   const [run, setRun] = useState(null) // { qs, seed }
   if (!lesson) return <Navigate to="/" />
   const subject = subjectById(lesson.subject)
 
+  const avail = (lv) => lesson.questions.filter((q) => lv === 'all' || q.level === lv).length
+  const max = avail(level === 'all' ? 'all' : Number(level))
+  const n = Math.min(count, max)
+  const counts = [5, 10, 20].filter((c) => c < max)
+
   const start = () => {
     const seed = Date.now().toString(36)
     let pool = lesson.questions.filter((q) => level === 'all' || q.level === Number(level))
-    pool = seededShuffle(pool, seed).map((o) => o.x).slice(0, count).sort((a, b) => a.level - b.level)
+    pool = seededShuffle(pool, seed).map((o) => o.x).slice(0, n).sort((a, b) => a.level - b.level)
     setRun({ qs: pool, seed })
   }
 
   if (run) return <Runner lesson={lesson} subject={subject} student={student} mode={mode} level={level} qs={run.qs} seed={run.seed} onExit={() => setRun(null)} />
-
-  const avail = (lv) => lesson.questions.filter((q) => lv === 'all' || q.level === lv).length
 
   return (
     <div className="page narrow">
@@ -61,9 +64,14 @@ export default function Practice() {
         </div>
         <div>
           <b>Số câu</b>
-          <div className="seg" style={{ marginTop: 8 }}>
-            {[5, 10, 20].map((n) => <button key={n} className={count === n ? 'on' : ''} onClick={() => setCount(n)}>{n}</button>)}
-          </div>
+          {counts.length ? (
+            <div className="seg" style={{ marginTop: 8 }}>
+              {counts.map((c) => <button key={c} className={n === c ? 'on' : ''} onClick={() => setCount(c)}>{c}</button>)}
+              <button className={n === max ? 'on' : ''} onClick={() => setCount(Infinity)}>Tất cả ({max})</button>
+            </div>
+          ) : (
+            <div className="small muted" style={{ marginTop: 8 }}>Làm hết {max} câu của mức này</div>
+          )}
         </div>
         <button className="btn primary block" onClick={start}>▶ Bắt đầu</button>
       </div>
